@@ -1,0 +1,12 @@
+import unittest
+
+class FooTests(unittest.TestCase):
+    
+    def testMatches(self):
+        self.failUnless(False)
+
+def main():
+    unittest.main()
+
+if __name__ == '__main__':
+    main()
