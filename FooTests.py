@@ -1,21 +1,40 @@
 import unittest
 import datetime
 
-#This is the class we're testing
 class DatePattern:
 
-    def __init__(self, year, month, day):
+    def __init__(self, year, month, day, weekday = 0):
         self.year  = year
         self.month = month
         self.day   = day
+        self.weekday = weekday
 
     def matches(self, date):
-        return ((self.year and self.year == date.year or True) and
-                (self.month and self.month == date.month or True) and
-                self.day   == date.day)
+        return (self.yearMatches(date) and
+                self.monthMatches(date) and
+                self.dayMatches(date) and
+                self.weekdayMatches(date))
+
+    def yearMatches(self, date):
+        if not self.year: return True
+        return self.year == date.year
+
+    def monthMatches(self, date):
+        if not self.month: return True
+        return self.month == date.month
+
+    def dayMatches(self, date):
+        if not self.day: return True
+        return self.day == date.day
+
+    def weekdayMatches(self, date):
+        if not self.weekday: return True
+        return self.weekday == date.weekday()
+
+
+
                 
 
-#This is the testing class...
 class FooTests(unittest.TestCase):
     
     def testMatches(self):
@@ -37,6 +56,33 @@ class FooTests(unittest.TestCase):
         p = DatePattern(0, 0, 1)
         d = datetime.date(2004, 10, 1)
         self.failUnless(p.matches(d))
+
+    def testMatchesWeekday(self):
+        p = DatePattern(0, 0, 0, 2)
+        d = datetime.date(2004, 9, 29)
+        self.failUnless(p.matches(d))
+
+    def testMatchesLastWeekday(self):
+        p = DatePattern(0, 0, 0, 3)
+        #Finish this
+
+
+
+class YearPattern:
+    def __init__(self, year):
+        pass
+
+    def matches(self, date):
+        return True
+
+
+class NewTests(unittest.TestCase):
+
+    def testYearMatches(self):
+        yp = YearPattern(2004)
+        d = datetime.date(2004, 9, 29)
+        self.failUnless(yp.matches(d))
+
 
     
 
