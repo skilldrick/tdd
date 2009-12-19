@@ -61,6 +61,22 @@ class CompositePattern:
         return True
 
     
+class NthWeekdayPattern:
+    def __init__(self, n, weekday):
+        self.n = n
+        self.weekday = weekday
+
+    def matches(self, date):
+        if self.weekday != date.weekday():
+            return False
+        n = 1
+        while True:
+            previousDate = date - datetime.timedelta(7 * n)
+            if previousDate.month == date.month:
+                n += 1
+            else:
+                break
+        return self.n == n
         
 
 
@@ -134,7 +150,17 @@ class LastWeekdayPatternTests(unittest.TestCase):
         self.failIf(self.pattern.matches(firstWedOfSep2004))
 
                        
-        
+class NthWeekdayPatternTests(unittest.TestCase):
+    def setUp(self):
+        self.pattern = NthWeekdayPattern(1, WEDNESDAY)
+
+    def testMatches(self):
+        firstWedOfSep2004 = datetime.date(2004, 9, 1)
+        self.failUnless(self.pattern.matches(firstWedOfSep2004))
+    
+    def testNotMatches(self):
+        secondWedOfSep2004 = datetime.date(2004, 9, 8)
+        self.failIf(self.pattern.matches(secondWedOfSep2004))
         
 
 
