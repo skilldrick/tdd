@@ -45,22 +45,6 @@ class LastWeekdayInMonthPattern:
         return (self.weekday == date.weekday() and
                 nextWeek.month != date.month)
     
-
-
-class CompositePattern:
-    def __init__(self):
-        self.patterns = []
-    
-    def add(self, pattern):
-        self.patterns.append(pattern)
-
-    def matches(self, date):
-        for pattern in self.patterns:
-            if not pattern.matches(date):
-                return False
-        return True
-
-    
 class NthWeekdayInMonthPattern:
     def __init__(self, n, weekday):
         self.n = n
@@ -80,14 +64,26 @@ class NthWeekdayInMonthPattern:
             else:
                 break
         return n
-        
 
 class LastDayInMonthPattern:
     def matches(self, date):
         tomorrow = date + datetime.timedelta(1)
         return tomorrow.month != date.month
 
+class CompositePattern:
+    def __init__(self):
+        self.patterns = []
+    
+    def add(self, pattern):
+        self.patterns.append(pattern)
 
+    def matches(self, date):
+        for pattern in self.patterns:
+            if not pattern.matches(date):
+                return False
+        return True
+
+    
 
 class PatternTests(unittest.TestCase):
     def setUp(self):
