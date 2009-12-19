@@ -69,6 +69,9 @@ class NthWeekdayPattern:
     def matches(self, date):
         if self.weekday != date.weekday():
             return False
+        return self.n == self.getWeekdayNumber(date)
+
+    def getWeekdayNumber(self, date):
         n = 1
         while True:
             previousDate = date - datetime.timedelta(7 * n)
@@ -76,7 +79,7 @@ class NthWeekdayPattern:
                 n += 1
             else:
                 break
-        return self.n == n
+        return n
         
 
 
