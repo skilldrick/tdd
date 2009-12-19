@@ -1,6 +1,7 @@
 import unittest
 import datetime
 
+#This is the class we're testing
 class DatePattern:
 
     def __init__(self, year, month, day):
