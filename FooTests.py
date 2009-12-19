@@ -15,7 +15,7 @@ class DatePattern:
                 self.day   == date.day)
                 
 
-#This is the testing class
+#This is the testing class...
 class FooTests(unittest.TestCase):
     
     def testMatches(self):
