@@ -1,69 +1,7 @@
 import unittest
 import datetime
 
-class DatePattern:
-
-    def __init__(self, year, month, day, weekday = 0):
-        self.year  = year
-        self.month = month
-        self.day   = day
-        self.weekday = weekday
-
-    def matches(self, date):
-        return (self.yearMatches(date) and
-                self.monthMatches(date) and
-                self.dayMatches(date) and
-                self.weekdayMatches(date))
-
-    def yearMatches(self, date):
-        if not self.year: return True
-        return self.year == date.year
-
-    def monthMatches(self, date):
-        if not self.month: return True
-        return self.month == date.month
-
-    def dayMatches(self, date):
-        if not self.day: return True
-        return self.day == date.day
-
-    def weekdayMatches(self, date):
-        if not self.weekday: return True
-        return self.weekday == date.weekday()
-
-                
-
-class FooTests(unittest.TestCase):
-    
-    def testMatches(self):
-        p = DatePattern(2004, 9, 28)
-        d = datetime.date(2004, 9, 28)
-        self.failUnless(p.matches(d))
-
-    def testMatchesFalse(self):
-        p = DatePattern(2004, 9, 28)
-        d = datetime.date(2004, 9, 29)
-        self.failIf(p.matches(d))
-
-    def testMatchesYearAsWildCard(self):
-        p = DatePattern(0, 4, 10)
-        d = datetime.date(2009, 4, 10)
-        self.failUnless(p.matches(d))
-
-    def testMatchesYearAndMonthAsWildCards(self):
-        p = DatePattern(0, 0, 1)
-        d = datetime.date(2004, 10, 1)
-        self.failUnless(p.matches(d))
-
-    def testMatchesWeekday(self):
-        p = DatePattern(0, 0, 0, 2)
-        d = datetime.date(2004, 9, 29)
-        self.failUnless(p.matches(d))
-
-    def testMatchesLastWeekday(self):
-        p = DatePattern(0, 0, 0, 3)
-        #Finish this
-
+MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 
 
 class YearPattern:
@@ -98,6 +36,17 @@ class WeekdayPattern:
         return self.weekday == date.weekday()
 
 
+class LastWeekdayPattern:
+    def __init__(self, weekday):
+        self.weekday = weekday
+
+    def matches(self, date):
+        nextWeek = date + datetime.timedelta(7)
+        return (self.weekday == date.weekday() and
+                nextWeek.month != date.month)
+    
+
+
 class CompositePattern:
     def __init__(self):
         self.patterns = []
@@ -115,72 +64,74 @@ class CompositePattern:
         
 
 
-class NewTests(unittest.TestCase):
+class PatternTests(unittest.TestCase):
+    def setUp(self):
+        self.d = datetime.date(2004, 9, 29)
 
     def testYearMatches(self):
         yp = YearPattern(2004)
-        d = datetime.date(2004, 9, 29)
-        self.failUnless(yp.matches(d))
+        self.failUnless(yp.matches(self.d))
 
     def testYearDoesNotMatch(self):
         yp = YearPattern(2003)
-        d = datetime.date(2004, 9, 29)
-        self.failIf(yp.matches(d))
+        self.failIf(yp.matches(self.d))
 
     def testMonthMatches(self):
         mp = MonthPattern(9)
-        d = datetime.date(2004, 9, 29)
-        self.failUnless(mp.matches(d))
+        self.failUnless(mp.matches(self.d))
 
     def testMonthDoesNotMatch(self):
         mp = MonthPattern(8)
-        d = datetime.date(2004, 9, 29)
-        self.failIf(mp.matches(d))
+        self.failIf(mp.matches(self.d))
 
     def testDayMatches(self):
         dp = DayPattern(29)
-        d = datetime.date(2004, 9, 29)
-        self.failUnless(dp.matches(d))
+        self.failUnless(dp.matches(self.d))
 
     def testDayDoesNotMatch(self):
         dp = DayPattern(28)
-        d = datetime.date(2004, 9, 29)
-        self.failIf(dp.matches(d))
+        self.failIf(dp.matches(self.d))
 
     def testWeekdayMatches(self):
-        wp = WeekdayPattern(2) #Wed
-        d = datetime.date(2004, 9, 29)
-        self.failUnless(wp.matches(d))
+        wp = WeekdayPattern(WEDNESDAY)
+        self.failUnless(wp.matches(self.d))
 
     def testWeekdayDoesNotMatch(self):
-        wp = WeekdayPattern(1) #Tue
-        d = datetime.date(2004, 9, 29)
-        self.failIf(wp.matches(d))
+        wp = WeekdayPattern(TUESDAY)
+        self.failIf(wp.matches(self.d))
 
     def testCompositeMatches(self):
         cp = CompositePattern()
         cp.add(YearPattern(2004))
         cp.add(MonthPattern(9))
         cp.add(DayPattern(29))
-        d = datetime.date(2004, 9, 29)
-        self.failUnless(cp.matches(d))
+        self.failUnless(cp.matches(self.d))
 
     def testCompositeDoesNotMatch(self):
         cp = CompositePattern()
         cp.add(YearPattern(2004))
         cp.add(MonthPattern(9))
         cp.add(DayPattern(28))
-        d = datetime.date(2004, 9, 29)
-        self.failIf(cp.matches(d))
+        self.failIf(cp.matches(self.d))
 
     def testCompositeWithoutYearMatches(self):
         cp = CompositePattern()
-        cp.add(MonthPattern(4))
-        cp.add(DayPattern(10))
-        d = datetime.date(2005, 4, 10)
-        self.failUnless(cp.matches(d))
+        cp.add(MonthPattern(9))
+        cp.add(DayPattern(29))
+        self.failUnless(cp.matches(self.d))
 
-    
+
+class LastWeekdayPatternTests(unittest.TestCase):
+    def setUp(self):
+        self.pattern = LastWeekdayPattern(WEDNESDAY)
+
+    def testLastWednesdayMatches(self):
+        lastWedOfSep2004 = datetime.date(2004, 9, 29)
+        self.failUnless(self.pattern.matches(lastWedOfSep2004))
+
+    def testLastWednesdayDoesNotMatch(self):
+        firstWedOfSep2004 = datetime.date(2004, 9, 1)
+        self.failIf(self.pattern.matches(firstWedOfSep2004))
 
                        
         
