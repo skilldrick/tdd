@@ -36,7 +36,7 @@ class WeekdayPattern:
         return self.weekday == date.weekday()
 
 
-class LastWeekdayPattern:
+class LastWeekdayInMonthPattern:
     def __init__(self, weekday):
         self.weekday = weekday
 
@@ -61,7 +61,7 @@ class CompositePattern:
         return True
 
     
-class NthWeekdayPattern:
+class NthWeekdayInMonthPattern:
     def __init__(self, n, weekday):
         self.n = n
         self.weekday = weekday
@@ -81,6 +81,12 @@ class NthWeekdayPattern:
                 break
         return n
         
+
+class LastDayInMonthPattern:
+    def matches(self, date):
+        tomorrow = date + datetime.timedelta(1)
+        return tomorrow.month != date.month
+
 
 
 class PatternTests(unittest.TestCase):
@@ -140,9 +146,9 @@ class PatternTests(unittest.TestCase):
         self.failUnless(cp.matches(self.d))
 
 
-class LastWeekdayPatternTests(unittest.TestCase):
+class LastWeekdayInMonthPatternTests(unittest.TestCase):
     def setUp(self):
-        self.pattern = LastWeekdayPattern(WEDNESDAY)
+        self.pattern = LastWeekdayInMonthPattern(WEDNESDAY)
 
     def testLastWednesdayMatches(self):
         lastWedOfSep2004 = datetime.date(2004, 9, 29)
@@ -153,9 +159,9 @@ class LastWeekdayPatternTests(unittest.TestCase):
         self.failIf(self.pattern.matches(firstWedOfSep2004))
 
                        
-class NthWeekdayPatternTests(unittest.TestCase):
+class NthWeekdayInMonthPatternTests(unittest.TestCase):
     def setUp(self):
-        self.pattern = NthWeekdayPattern(1, WEDNESDAY)
+        self.pattern = NthWeekdayInMonthPattern(1, WEDNESDAY)
 
     def testMatches(self):
         firstWedOfSep2004 = datetime.date(2004, 9, 1)
@@ -166,8 +172,20 @@ class NthWeekdayPatternTests(unittest.TestCase):
         self.failIf(self.pattern.matches(secondWedOfSep2004))
         
 
+class LastDayInMonthPatternTests(unittest.TestCase):
+    def setUp(self):
+        self.pattern = LastDayInMonthPattern()
 
-    
+        
+    def testMatches(self):
+        lastDayInSep2004 = datetime.date(2004, 9, 30)
+        self.failUnless(self.pattern.matches(lastDayInSep2004))
+
+    def testNotMatches(self):
+        secondToLastDayInSep2004 = datetime.date(2004, 9, 29)
+        self.failIf(self.pattern.matches(secondToLastDayInSep2004))
+        
+
 
 
 def main():
