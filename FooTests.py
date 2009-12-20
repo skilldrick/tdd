@@ -1,4 +1,4 @@
-#This is the refactor branch version
+#This is the silly branch, used for testing...
 
 import unittest
 import datetime
@@ -47,6 +47,7 @@ class LastWeekdayInMonthPattern:
         return (self.weekday == date.weekday() and
                 nextWeek.month != date.month)
     
+
 class NthWeekdayInMonthPattern:
     def __init__(self, n, weekday):
         self.n = n
@@ -67,10 +68,12 @@ class NthWeekdayInMonthPattern:
                 break
         return n
 
+
 class LastDayInMonthPattern:
     def matches(self, date):
         tomorrow = date + datetime.timedelta(1)
         return tomorrow.month != date.month
+
 
 class CompositePattern:
     def __init__(self):
@@ -86,6 +89,9 @@ class CompositePattern:
         return True
 
     
+#-----------------------------------------#
+#                 TESTS                   #
+#-----------------------------------------#
 
 class PatternTests(unittest.TestCase):
     def setUp(self):
@@ -185,7 +191,7 @@ class LastDayInMonthPatternTests(unittest.TestCase):
         
 
 
-
+        
 def main():
     unittest.main()
 
